@@ -1,0 +1,92 @@
+---
+geometry: left=0.8in,right=0.8in,top=0.8in,bottom=0.8in
+fontsize: 11pt
+title: "STA 445 S26 Assignment 2"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+Load all the packages you will need here.  Notice that the code chunk option has been set to include = FALSE.  This means the code will run, but the output will not be shown in the knitted document.  Thus, you do not need to worry about suppressing warning messages.  This code will be helpful when writing a project report.
+
+```{r include = FALSE}
+library(Lock5Data)
+library(tidyverse)
+library(dplyr)
+
+```
+
+# Problem 1
+
+Download from GitHub the data file by clicking on this link:  [Example_5.xls](https://github.com/BuscagliaR/STA_444_v2/raw/refs/heads/main/data-raw/Example_5.xls). Open it in Excel and figure out which sheet of data we should import into R. At the same time figure out which range of values to import.
+```{r}
+trees <- read.csv("datatable3.csv", na.strings = c("-9999", "NA"))
+str(trees)
+```
+
+a. Import the dataset into a data frame and show the structure of the imported data using the `str()` command. Make sure that your data has $n=31$ observations and the three columns are appropriately named. You are not allowed to make any modifications to the data file.  All changes must be made within this rmd file.
+```{r}
+tail(trees, 5)
+```
+
+b. Use `slice_sample()` to show five random rows of the dataset.
+```{r}
+slice_sample(trees, n = 5)
+```
+
+# Problem 2
+
+Download from GitHub the data file by clicking on this link: [Example_3.xls](https://github.com/BuscagliaR/STA_444_v2/raw/refs/heads/main/data-raw/Example_3.xls). Import the data set into a data frame and show the structure of the imported data using the `str()` command. Make sure the Tesla values are `NA` where appropriate and that both `-9999` and `NA` are imported as NA values. You are not allowed to make any modifications to the data file.  All changes must be made within this rmd file.
+```{r}
+cars <- read.csv("datatable1.csv", na.strings = c("-9999", "NA"))
+str(cars)
+```
+
+b. Use the `tail()` command to show the last five rows of a data table. 
+```{r}
+tail(cars, 5)
+```
+
+c. Use `slice_sample()` to show five random rows of the dataset.
+```{r}
+slice_sample(cars, n = 5)
+```
+
+
+# Problem 3
+
+Download all of the files from GitHub `data-raw/InsectSurveys` directory which have been linked [here.](https://github.com/BuscagliaR/STA_444_v2/tree/main/data-raw/InsectSurveys) Each month's file contains a sheet with information about each of the sites that was surveyed. The second sheet contains information about the number of each species that was observed at each site. 
+
+a. Import the data for each month and create a single `site` data frame with information from each month. You are not allowed to make any modifications to the data file.  All changes must be made within this rmd file. You may need to change column names and reorganize columns.
+```{r}
+library(purrr)
+library(readxl)
+files <- c("May.xlsx", "June.xlsx", "July.xlsx", "August.xlsx", "September.xlsx", "October.xlsx")
+site_list <- map(files, function(file) 
+  {
+  df <- read_excel(file, sheet = 1, col_types = "text")
+  df[df == "Did not vist"] <- NA
+  names(df) <- toupper(names(df))
+  if (ncol(df) == 3)
+    {
+    df <- df %>%
+      mutate(POND_AREA = NA, WATER_DEPTH = NA, PH = NA, DATE = NA, OBSERVER = NA)
+  }
+  df
+})
+
+site <- bind_rows(site_list)
+site <- site %>% mutate(DATE = as.Date(DATE, format = "%d-%b-%y"))
+```
+
+b. Show the structure of the data frame using the `str()` command.
+```{r}
+str(site)
+```
+
+c. Use `slice_sample()` to show eight random rows of the dataset.
+```{r}
+site %>% slice_sample(n = 8)
+```
+
+d. Comment on the importance of consistency of your data input sheets.
+Consistency in data input sheets is important for when you import your data so it works properly. Its important to have same column names so it doesnt make different ouputs. having consistent formatting is important as well so it doesnt cause any errors in results.
